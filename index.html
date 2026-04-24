@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FiltroPro - Dashboard de gestión</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <img src="assets/water-drop.svg" alt="Logo" class="brand-logo" />
+          <div>
+            <strong>FiltroPro</strong>
+            <span>Gestión de agua</span>
+          </div>
+        </div>
+        <nav class="nav-menu">
+          <button class="nav-item active" data-view="dashboard">
+            Dashboard
+          </button>
+          <button class="nav-item" data-view="productos">Productos</button>
+          <button class="nav-item" data-view="stock">Stock</button>
+          <button class="nav-item" data-view="pedidos">Pedidos</button>
+          <button class="nav-item" data-view="usuarios">Usuarios</button>
+        </nav>
+        <div class="sidebar-footer">
+          <button id="logoutBtn" class="btn btn-secondary">
+            Cerrar sesión
+          </button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div>
+            <h1 id="pageTitle">Dashboard</h1>
+            <p class="subtitle">
+              Control total de productos, pedidos, stock y usuarios.
+            </p>
+          </div>
+          <div class="user-chip">
+            <span id="currentUserRole">Administrador</span>
+            <strong id="currentUserName">Admin</strong>
+          </div>
+        </header>
+
+        <section id="dashboardView" class="view active">
+          <div class="grid cards-grid">
+            <article class="card metric-card">
+              <span class="card-label">Productos totales</span>
+              <h2 id="metricProducts">0</h2>
+            </article>
+            <article class="card metric-card">
+              <span class="card-label">Pedidos totales</span>
+              <h2 id="metricOrders">0</h2>
+            </article>
+            <article class="card metric-card">
+              <span class="card-label">Stock bajo</span>
+              <h2 id="metricLowStock">0</h2>
+            </article>
+            <article class="card metric-card">
+              <span class="card-label">Ingresos estimados</span>
+              <h2 id="metricRevenue">$0</h2>
+            </article>
+          </div>
+
+          <div class="grid layout-2">
+            <section class="card overview-card">
+              <div class="card-header">
+                <h3>Últimos pedidos</h3>
+              </div>
+              <div class="table-scroll">
+                <table class="table" id="recentOrdersTable">
+                  <thead>
+                    <tr>
+                      <th>Pedido</th>
+                      <th>Cliente</th>
+                      <th>Total</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="card overview-card">
+              <div class="card-header">
+                <h3>Alertas de stock</h3>
+              </div>
+              <div class="table-scroll">
+                <table class="table" id="lowStockTable">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Categoría</th>
+                      <th>Stock</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="productosView" class="view">
+          <div class="section-header">
+            <div>
+              <h2>Productos</h2>
+              <p>Administra el catálogo de filtros y accesorios.</p>
+            </div>
+            <button id="openProductFormBtn" class="btn btn-primary">
+              Agregar producto
+            </button>
+          </div>
+
+          <div class="panel-row">
+            <input
+              type="text"
+              id="searchProduct"
+              placeholder="Buscar producto..."
+              class="input-search"
+            />
+            <select id="filterCategory" class="input-select">
+              <option value="">Todas las categorías</option>
+            </select>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table" id="productsTable">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Categoría</th>
+                  <th>Precio</th>
+                  <th>Stock</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="stockView" class="view">
+          <div class="section-header">
+            <div>
+              <h2>Stock</h2>
+              <p>Visión general del inventario y productos con alerta.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="stockTable">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Disponible</th>
+                  <th>Alerta</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="pedidosView" class="view">
+          <div class="section-header">
+            <div>
+              <h2>Pedidos</h2>
+              <p>Gestiona estados y revisa el historial.</p>
+            </div>
+            <button id="openOrderFormBtn" class="btn btn-primary">
+              Nuevo pedido
+            </button>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table" id="ordersTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Cliente</th>
+                  <th>Total</th>
+                  <th>Estado</th>
+                  <th>Fecha</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="usuariosView" class="view">
+          <div class="section-header">
+            <div>
+              <h2>Usuarios</h2>
+              <p>Control de vendedores y administradores.</p>
+            </div>
+            <button id="openUserFormBtn" class="btn btn-primary">
+              Agregar usuario
+            </button>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table" id="usersTable">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Rol</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="overlay" class="overlay hidden"></div>
+
+    <div id="loginContainer" class="login-panel">
+      <div class="login-card">
+        <div class="auth-header">
+          <div>
+            <h2>Ingresar a FiltroPro</h2>
+            <p>Usa tu cuenta para administrar el sistema.</p>
+          </div>
+          <img src="assets/water-drop.svg" alt="Logo panel" />
+        </div>
+        <form id="loginForm" class="auth-form">
+          <label>
+            Email
+            <input type="email" id="loginEmail" required />
+          </label>
+          <label>
+            Contraseña
+            <input type="password" id="loginPassword" required minlength="4" />
+          </label>
+          <button type="submit" class="btn btn-primary">Ingresar</button>
+        </form>
+        <div class="auth-switch">
+          <p>
+            ¿No tienes cuenta?
+            <button id="showRegisterBtn" class="link-button">
+              Crear usuario
+            </button>
+          </p>
+        </div>
+        <form id="registerForm" class="auth-form hidden">
+          <label>
+            Nombre
+            <input type="text" id="registerName" required />
+          </label>
+          <label>
+            Email
+            <input type="email" id="registerEmail" required />
+          </label>
+          <label>
+            Contraseña
+            <input
+              type="password"
+              id="registerPassword"
+              required
+              minlength="4"
+            />
+          </label>
+          <label>
+            Rol
+            <select id="registerRole">
+              <option value="vendedor">Vendedor</option>
+              <option value="administrador">Administrador</option>
+            </select>
+          </label>
+          <button type="submit" class="btn btn-primary">Registrar</button>
+        </form>
+        <div class="auth-switch hidden" id="registerSwitch">
+          <p>
+            ¿Ya tienes cuenta?
+            <button id="showLoginBtn" class="link-button">
+              Iniciar sesión
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalPanel" class="modal hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="modalTitle">Formulario</h3>
+          <button id="closeModalBtn" class="icon-btn" aria-label="Cerrar modal">
+            ×
+          </button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+      </div>
+    </div>
+
+    <div id="notification" class="notification hidden"></div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

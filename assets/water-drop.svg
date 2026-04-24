@@ -1,0 +1,10 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Water drop logo">
+        <defs>
+                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#0b76d1" />
+                        <stop offset="100%" stop-color="#3ec1ff" />
+                </linearGradient>
+        </defs>
+        <path fill="url(#grad)"
+                d="M32 2C18.7 2 8 12.6 8 25.5 8 39.9 25.5 58 30.8 62.4c0.7 0.6 1.7 0.6 2.4 0C38.5 58 56 39.9 56 25.5 56 12.6 45.3 2 32 2z" />
+</svg>
