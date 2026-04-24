@@ -14,29 +14,31 @@
   </head>
   <body>
     <div class="app-shell">
-      <aside class="sidebar">
+      <header class="main-header">
         <div class="brand">
-          <img src="assets/water-drop.svg" alt="Logo" class="brand-logo" />
+          <img src="assets/water-drop.svg" alt="Logo FiltroPro" class="brand-logo" />
           <div>
             <strong>FiltroPro</strong>
             <span>Gestión de agua</span>
           </div>
         </div>
-        <nav class="nav-menu">
-          <button class="nav-item active" data-view="dashboard">
-            Dashboard
-          </button>
+
+        <nav class="nav-menu" aria-label="Navegación principal">
+          <button class="nav-item active" data-view="dashboard">Dashboard</button>
           <button class="nav-item" data-view="productos">Productos</button>
           <button class="nav-item" data-view="stock">Stock</button>
           <button class="nav-item" data-view="pedidos">Pedidos</button>
           <button class="nav-item" data-view="usuarios">Usuarios</button>
         </nav>
-        <div class="sidebar-footer">
-          <button id="logoutBtn" class="btn btn-secondary">
-            Cerrar sesión
-          </button>
+
+        <div class="header-actions">
+          <div class="profile-info">
+            <span id="currentUserRole">Administrador</span>
+            <strong id="currentUserName">Admin</strong>
+          </div>
+          <button id="logoutBtn" class="btn btn-secondary logout-button">Cerrar sesión</button>
         </div>
-      </aside>
+      </header>
 
       <main class="main-content">
         <header class="topbar">
@@ -46,13 +48,9 @@
               Control total de productos, pedidos, stock y usuarios.
             </p>
           </div>
-          <div class="user-chip">
-            <span id="currentUserRole">Administrador</span>
-            <strong id="currentUserName">Admin</strong>
-          </div>
         </header>
 
-        <section id="dashboardView" class="view active">
+        <section id="dashboardView" class="view active-view">
           <div class="grid cards-grid">
             <article class="card metric-card">
               <span class="card-label">Productos totales</span>

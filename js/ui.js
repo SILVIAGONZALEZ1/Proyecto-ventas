@@ -1,7 +1,7 @@
 const FiltroUI = {
   selectors: {
     views: document.querySelectorAll(".view"),
-    navItems: document.querySelectorAll(".nav-item"),
+    navItems: document.querySelectorAll(".main-header .nav-item"),
     pageTitle: document.getElementById("pageTitle"),
     currentUserName: document.getElementById("currentUserName"),
     currentUserRole: document.getElementById("currentUserRole"),
@@ -147,7 +147,7 @@ const FiltroUI = {
 
   showView(viewId) {
     this.selectors.views.forEach((view) =>
-      view.classList.toggle("active", view.id === `${viewId}View`),
+      view.classList.toggle("active-view", view.id === `${viewId}View`),
     );
     const titleMap = {
       dashboard: "Dashboard",
