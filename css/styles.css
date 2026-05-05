@@ -322,6 +322,45 @@ button.link-button {
   }
 }
 
+/* Optimizaciones para App Móvil */
+@media (max-width: 768px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .main-header {
+    padding: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav-menu {
+    display: flex;
+    overflow-x: auto; /* Permite scroll horizontal en el menú si hay muchos items */
+    width: 100%;
+    gap: 5px;
+    padding-bottom: 5px;
+  }
+
+  .nav-item {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  /* Ajuste de tablas para que no rompan el diseño */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .modal-card {
+    width: 95%;
+    margin: 10px;
+  }
+}
+
 .topbar h1 {
   margin: 0;
   font-size: 1.75rem;
@@ -473,6 +512,7 @@ button.link-button {
   inset: 0;
   background: rgba(15, 33, 64, 0.18);
   z-index: 15;
+  backdrop-filter: blur(2px);
 }
 
 .login-card,
@@ -490,6 +530,8 @@ button.link-button {
   align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
+  z-index: 100; /* Por encima de todo */
+  backdrop-filter: blur(4px); /* Opcional: un ligero desenfoque dentro del panel */
 }
 
 .auth-header h2 {

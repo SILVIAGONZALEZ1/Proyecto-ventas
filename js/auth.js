@@ -1,50 +1,67 @@
+import { auth, db } from "./firebase-config.js";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
 const FiltroAuth = {
   currentUser: null,
 
-  init() {
-    this.currentUser = FiltroStorage.getSession();
+  async init() {
+    await new Promise((resolve) => {
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const profileRef = doc(db, "users", user.uid);
+          const profileSnap = await getDoc(profileRef);
+          if (profileSnap.exists()) {
+            this.currentUser = {
+              uid: user.uid,
+              ...profileSnap.data(),
+            };
+          } else {
+            this.currentUser = null;
+          }
+        } else {
+          this.currentUser = null;
+        }
+        resolve();
+      });
+    });
   },
 
-  login(email, password) {
-    const users = FiltroStorage.getUsers();
-    const user = users.find(
-      (item) => item.email.toLowerCase() === email.toLowerCase(),
-    );
-    if (!user || user.password !== password) {
-      throw new Error("Usuario o contraseña inválidos.");
+  async login(email, password) {
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    const profileRef = doc(db, "users", credential.user.uid);
+    const profileSnap = await getDoc(profileRef);
+    if (!profileSnap.exists()) {
+      throw new Error("Perfil de usuario no encontrado en Firestore.");
     }
     this.currentUser = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
+      uid: credential.user.uid,
+      ...profileSnap.data(),
     };
-    FiltroStorage.saveSession(this.currentUser);
     return this.currentUser;
   },
 
-  register(name, email, password, role) {
-    const users = FiltroStorage.getUsers();
-    if (
-      users.some((item) => item.email.toLowerCase() === email.toLowerCase())
-    ) {
-      throw new Error("Ya existe un usuario con ese email.");
-    }
+  async register(name, email, password, role) {
+    const credential = await createUserWithEmailAndPassword(auth, email, password);
     const newUser = {
-      id: FiltroStorage.generateId(),
+      uid: credential.user.uid,
       name,
       email,
-      password,
       role,
     };
-    users.push(newUser);
-    FiltroStorage.saveUsers(users);
+    await setDoc(doc(db, "users", credential.user.uid), newUser);
+    this.currentUser = newUser;
     return newUser;
   },
 
-  logout() {
+  async logout() {
+    await signOut(auth);
     this.currentUser = null;
-    FiltroStorage.saveSession(null);
   },
 
   get isAuthenticated() {
@@ -55,3 +72,5 @@ const FiltroAuth = {
     return this.currentUser?.role === role;
   },
 };
+
+export { FiltroAuth };

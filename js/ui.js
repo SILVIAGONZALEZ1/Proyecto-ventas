@@ -1,3 +1,7 @@
+import { FiltroAuth } from "./auth.js";
+import { FiltroData } from "./data.js";
+import { FiltroStorage } from "./storage.js";
+
 const FiltroUI = {
   selectors: {
     views: document.querySelectorAll(".view"),
@@ -49,28 +53,26 @@ const FiltroUI = {
   bindNavigation() {
     this.selectors.navItems.forEach((button) => {
       button.addEventListener("click", () => {
-        this.selectors.navItems.forEach((item) =>
-          item.classList.remove("active"),
-        );
+        this.selectors.navItems.forEach((item) => item.classList.remove("active"));
         button.classList.add("active");
         this.showView(button.dataset.view);
       });
     });
-    this.selectors.logoutBtn.addEventListener("click", () => {
-      FiltroAuth.logout();
+
+    this.selectors.logoutBtn.addEventListener("click", async () => {
+      await FiltroAuth.logout();
+      this.updateUserInfo();
       this.showLoginPanel();
     });
   },
 
   bindAuthForms() {
-    this.selectors.loginForm.addEventListener("submit", (event) => {
+    this.selectors.loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const email = event.target.querySelector("#loginEmail").value.trim();
-      const password = event.target
-        .querySelector("#loginPassword")
-        .value.trim();
+      const password = event.target.querySelector("#loginPassword").value.trim();
       try {
-        FiltroAuth.login(email, password);
+        await FiltroAuth.login(email, password);
         this.showNotification("Sesión iniciada correctamente.");
         this.closeLoginPanel();
         this.updateUserInfo();
@@ -80,16 +82,14 @@ const FiltroUI = {
       }
     });
 
-    this.selectors.registerForm.addEventListener("submit", (event) => {
+    this.selectors.registerForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const name = event.target.querySelector("#registerName").value.trim();
       const email = event.target.querySelector("#registerEmail").value.trim();
-      const password = event.target
-        .querySelector("#registerPassword")
-        .value.trim();
+      const password = event.target.querySelector("#registerPassword").value.trim();
       const role = event.target.querySelector("#registerRole").value;
       try {
-        FiltroAuth.register(name, email, password, role);
+        await FiltroAuth.register(name, email, password, role);
         this.showNotification("Usuario registrado con éxito. Inicia sesión.");
         this.toggleAuthForms("login");
       } catch (error) {
@@ -97,12 +97,8 @@ const FiltroUI = {
       }
     });
 
-    this.selectors.showRegisterBtn.addEventListener("click", () =>
-      this.toggleAuthForms("register"),
-    );
-    this.selectors.showLoginBtn.addEventListener("click", () =>
-      this.toggleAuthForms("login"),
-    );
+    this.selectors.showRegisterBtn.addEventListener("click", () => this.toggleAuthForms("register"));
+    this.selectors.showLoginBtn.addEventListener("click", () => this.toggleAuthForms("login"));
   },
 
   toggleAuthForms(mode) {
@@ -121,34 +117,20 @@ const FiltroUI = {
   },
 
   bindModalActions() {
-    this.selectors.closeModalBtn.addEventListener("click", () =>
-      this.closeModal(),
-    );
+    this.selectors.closeModalBtn.addEventListener("click", () => this.closeModal());
     this.selectors.overlay.addEventListener("click", () => this.closeModal());
-    this.selectors.openProductFormBtn.addEventListener("click", () =>
-      this.openProductForm(),
-    );
-    this.selectors.openOrderFormBtn.addEventListener("click", () =>
-      this.openOrderForm(),
-    );
-    this.selectors.openUserFormBtn?.addEventListener("click", () =>
-      this.openUserForm(),
-    );
+    this.selectors.openProductFormBtn.addEventListener("click", () => this.openProductForm());
+    this.selectors.openOrderFormBtn.addEventListener("click", () => this.openOrderForm());
+    this.selectors.openUserFormBtn?.addEventListener("click", () => this.openUserForm());
   },
 
   bindProductFilters() {
-    this.selectors.searchProduct.addEventListener("input", () =>
-      this.renderProducts(),
-    );
-    this.selectors.filterCategory.addEventListener("change", () =>
-      this.renderProducts(),
-    );
+    this.selectors.searchProduct.addEventListener("input", () => this.renderProducts());
+    this.selectors.filterCategory.addEventListener("change", () => this.renderProducts());
   },
 
   showView(viewId) {
-    this.selectors.views.forEach((view) =>
-      view.classList.toggle("active-view", view.id === `${viewId}View`),
-    );
+    this.selectors.views.forEach((view) => view.classList.toggle("active-view", view.id === `${viewId}View`));
     const titleMap = {
       dashboard: "Dashboard",
       productos: "Productos",
@@ -164,8 +146,7 @@ const FiltroUI = {
     const user = FiltroAuth.currentUser;
     if (user) {
       this.selectors.currentUserName.textContent = user.name;
-      this.selectors.currentUserRole.textContent =
-        user.role === "administrador" ? "Administrador" : "Vendedor";
+      this.selectors.currentUserRole.textContent = user.role === "administrador" ? "Administrador" : "Vendedor";
     }
   },
 
@@ -173,9 +154,7 @@ const FiltroUI = {
     const categories = FiltroStorage.categories;
     this.selectors.filterCategory.innerHTML =
       '<option value="">Todas las categorías</option>' +
-      categories
-        .map((category) => `<option value="${category}">${category}</option>`)
-        .join("");
+      categories.map((category) => `<option value="${category}">${category}</option>`).join("");
   },
 
   refreshViews() {
@@ -207,10 +186,7 @@ const FiltroUI = {
 
     const lowProducts = FiltroData.getLowStockProducts();
     this.selectors.lowStockTable.innerHTML = lowProducts
-      .map(
-        (item) =>
-          `<tr><td>${item.name}</td><td>${item.category}</td><td>${item.stock}</td></tr>`,
-      )
+      .map((item) => `<tr><td>${item.name}</td><td>${item.category}</td><td>${item.stock}</td></tr>`)
       .join("");
   },
 
@@ -233,20 +209,19 @@ const FiltroUI = {
         </tr>`;
       })
       .join("");
+
     this.selectors.productsTable
       .querySelectorAll('[data-action="edit-product"]')
       .forEach((button) => {
-        button.addEventListener("click", () =>
-          this.openProductForm(button.dataset.id),
-        );
+        button.addEventListener("click", () => this.openProductForm(button.dataset.id));
       });
 
     this.selectors.productsTable
       .querySelectorAll('[data-action="delete-product"]')
       .forEach((button) => {
-        button.addEventListener("click", () => {
+        button.addEventListener("click", async () => {
           if (confirm("¿Deseas eliminar este producto?")) {
-            FiltroData.deleteProduct(button.dataset.id);
+            await FiltroData.deleteProduct(button.dataset.id);
             this.showNotification("Producto eliminado.");
             this.refreshViews();
           }
@@ -257,10 +232,7 @@ const FiltroUI = {
   renderStock() {
     const stockList = FiltroData.getStockOverview();
     this.selectors.stockTable.innerHTML = stockList
-      .map(
-        (item) =>
-          `<tr><td>${item.name}</td><td>${item.stock}</td><td>${item.low ? '<strong style="color: var(--warning)">Bajo stock</strong>' : "Estable"}</td></tr>`,
-      )
+      .map((item) => `<tr><td>${item.name}</td><td>${item.stock}</td><td>${item.low ? '<strong style="color: var(--warning)">Bajo stock</strong>' : "Estable"}</td></tr>`)
       .join("");
   },
 
@@ -278,16 +250,15 @@ const FiltroUI = {
       </tr>`,
       )
       .join("");
+
     this.selectors.ordersTable
       .querySelectorAll('[data-action="change-status"]')
       .forEach((button) => {
-        button.addEventListener("click", () => {
-          const order = FiltroData.getOrders().find(
-            (item) => item.id === button.dataset.id,
-          );
+        button.addEventListener("click", async () => {
+          const order = FiltroData.getOrders().find((item) => item.id === button.dataset.id);
           const nextStatus = this.getNextOrderStatus(order.status);
           if (confirm(`Cambiar estado a ${nextStatus}?`)) {
-            FiltroData.updateOrderStatus(order.id, nextStatus);
+            await FiltroData.updateOrderStatus(order.id, nextStatus);
             this.showNotification("Estado de pedido actualizado.");
             this.refreshViews();
           }
@@ -312,12 +283,13 @@ const FiltroUI = {
       </tr>`,
       )
       .join("");
+
     this.selectors.usersTable
       .querySelectorAll('[data-action="delete-user"]')
       .forEach((button) => {
-        button.addEventListener("click", () => {
+        button.addEventListener("click", async () => {
           if (confirm("Eliminar usuario de forma permanente?")) {
-            FiltroData.deleteUser(button.dataset.id);
+            await FiltroData.deleteUser(button.dataset.id);
             this.showNotification("Usuario eliminado.");
             this.refreshViews();
           }
@@ -397,35 +369,35 @@ const FiltroUI = {
       </form>
     `;
     this.openModal(title, content);
-    document
-      .getElementById("productForm")
-      .addEventListener("submit", (event) => {
-        event.preventDefault();
-        const data = {
-          id: product?.id || FiltroStorage.generateId(),
-          name: document.getElementById("productName").value.trim(),
-          description: document
-            .getElementById("productDescription")
-            .value.trim(),
-          price: Number(document.getElementById("productPrice").value),
-          category: document.getElementById("productCategory").value,
-          image: document.getElementById("productImage").value.trim(),
-          stock: Number(document.getElementById("productStock").value),
-        };
-        if (!data.name || !data.description || !data.image) {
-          this.showNotification("Completa todos los campos.", true);
-          return;
-        }
+    document.getElementById("productForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const data = {
+        id: product?.id || FiltroStorage.generateId(),
+        name: document.getElementById("productName").value.trim(),
+        description: document.getElementById("productDescription").value.trim(),
+        price: Number(document.getElementById("productPrice").value),
+        category: document.getElementById("productCategory").value,
+        image: document.getElementById("productImage").value.trim(),
+        stock: Number(document.getElementById("productStock").value),
+      };
+      if (!data.name || !data.description || !data.image) {
+        this.showNotification("Completa todos los campos.", true);
+        return;
+      }
+      try {
         if (product) {
-          FiltroData.updateProduct(data);
+          await FiltroData.updateProduct(data);
           this.showNotification("Producto actualizado.");
         } else {
-          FiltroData.addProduct(data);
+          await FiltroData.addProduct(data);
           this.showNotification("Producto agregado.");
         }
         this.closeModal();
         this.refreshViews();
-      });
+      } catch (error) {
+        this.showNotification(error.message, true);
+      }
+    });
   },
 
   openOrderForm() {
@@ -456,18 +428,14 @@ const FiltroUI = {
 
     const updateTotal = () => {
       const total = Array.from(quantityInputs).reduce((sum, input) => {
-        const product = products.find(
-          (item) => item.id === input.dataset.productId,
-        );
+        const product = products.find((item) => item.id === input.dataset.productId);
         return sum + product.price * Number(input.value);
       }, 0);
       totalField.value = `$${total.toFixed(2)}`;
     };
-    quantityInputs.forEach((input) =>
-      input.addEventListener("input", updateTotal),
-    );
+    quantityInputs.forEach((input) => input.addEventListener("input", updateTotal));
 
-    orderForm.addEventListener("submit", (event) => {
+    orderForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const customer = document.getElementById("orderCustomer").value.trim();
       const items = Array.from(quantityInputs)
@@ -477,22 +445,18 @@ const FiltroUI = {
         }))
         .filter((item) => item.quantity > 0);
       if (!customer || !items.length) {
-        this.showNotification(
-          "Agrega un cliente y al menos un producto.",
-          true,
-        );
+        this.showNotification("Agrega un cliente y al menos un producto.", true);
         return;
       }
       const total = items.reduce((sum, item) => {
-        const product = products.find(
-          (productItem) => productItem.id === item.productId,
-        );
+        const product = products.find((productItem) => productItem.id === item.productId);
         return sum + product.price * item.quantity;
       }, 0);
       try {
-        FiltroData.addOrder({
+        await FiltroData.addOrder({
           id: FiltroStorage.generateId(),
           customer,
+          customerId: FiltroStorage.generateId(),
           items,
           total,
           status: "pendiente",
@@ -525,32 +489,26 @@ const FiltroUI = {
       </form>
     `;
     this.openModal("Nuevo usuario", content);
-    document
-      .getElementById("newUserForm")
-      .addEventListener("submit", (event) => {
-        event.preventDefault();
-        const name = document.getElementById("newUserName").value.trim();
-        const email = document.getElementById("newUserEmail").value.trim();
-        const password = document
-          .getElementById("newUserPassword")
-          .value.trim();
-        const role = document.getElementById("newUserRole").value;
-        try {
-          FiltroAuth.register(name, email, password, role);
-          this.showNotification("Usuario creado correctamente.");
-          this.closeModal();
-          this.refreshViews();
-        } catch (error) {
-          this.showNotification(error.message, true);
-        }
-      });
+    document.getElementById("newUserForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const name = document.getElementById("newUserName").value.trim();
+      const email = document.getElementById("newUserEmail").value.trim();
+      const password = document.getElementById("newUserPassword").value.trim();
+      const role = document.getElementById("newUserRole").value;
+      try {
+        await FiltroAuth.register(name, email, password, role);
+        this.showNotification("Usuario creado correctamente.");
+        this.closeModal();
+        this.refreshViews();
+      } catch (error) {
+        this.showNotification(error.message, true);
+      }
+    });
   },
 
   showRoleAccess() {
     const isAdmin = FiltroAuth.hasRole("administrador");
-    const userNavButton = Array.from(this.selectors.navItems).find(
-      (button) => button.dataset.view === "usuarios",
-    );
+    const userNavButton = Array.from(this.selectors.navItems).find((button) => button.dataset.view === "usuarios");
     if (!isAdmin) {
       userNavButton?.classList.add("hidden");
       document.getElementById("usuariosView").classList.add("hidden");
@@ -560,3 +518,5 @@ const FiltroUI = {
     }
   },
 };
+
+export { FiltroUI };
