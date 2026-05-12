@@ -9,7 +9,6 @@ import {
   setDoc,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-
 const FiltroStorage = {
   categories: ["Filtros", "Recambios", "Bombas", "Accesorios"],
 
@@ -245,6 +244,79 @@ const FiltroStorage = {
       }),
     ]);
   },
+
+  // Métodos de sesión para autenticación (compatibilidad con auth.js)
+  getSession() {
+    // Las sesiones se almacenarán en localStorage para persistencia de login
+    try {
+      const session = localStorage.getItem("filtroApp_session");
+      return session ? JSON.parse(session) : null;
+    } catch (error) {
+      console.error("Error leyendo sesión:", error);
+      return null;
+    }
+  },
+
+  saveSession(user) {
+    if (user) {
+      localStorage.setItem("filtroApp_session", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("filtroApp_session");
+    }
+  },
+
+  // Métodos para usuarios locales (compatibilidad con auth.js)
+  async getUsers() {
+    return await this.getCollection("users", "name");
+  },
+
+  getLocalUsers() {
+    try {
+      const users = localStorage.getItem("filtroApp_users");
+      return users ? JSON.parse(users) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  saveLocalUsers(users) {
+    localStorage.setItem("filtroApp_users", JSON.stringify(users));
+  },
 };
+
+// Compatibilidad para métodos sincronos usados en auth.js
+const originalGetUsers = FiltroStorage.getUsers.bind(FiltroStorage);
+FiltroStorage.getUsers = function() {
+  // Retorna usuarios de localStorage para login rápido
+  return this.getLocalUsers();
+};
+
+FiltroStorage.saveUsers = function(users) {
+  this.saveLocalUsers(users);
+};
+
+// Método alternativo para obtener de Firebase
+FiltroStorage.getUsersFromFirebase = originalGetUsers;
+
+// Inicialización de usuarios de prueba si no existen
+const existingUsers = FiltroStorage.getLocalUsers();
+if (!existingUsers || existingUsers.length === 0) {
+  FiltroStorage.saveLocalUsers([
+    {
+      id: FiltroStorage.generateId(),
+      name: "Admin General",
+      email: "admin@filtros.com",
+      password: "admin123",
+      role: "administrador",
+    },
+    {
+      id: FiltroStorage.generateId(),
+      name: "Laura Vendedor",
+      email: "laura@filtros.com",
+      password: "venta123",
+      role: "vendedor",
+    },
+  ]);
+}
 
 export { FiltroStorage };
