@@ -11,8 +11,8 @@ const FiltroAuth = {
   },
 
   async login(email, password) {
-    const users = FiltroStorage.getUsers();
-    const user = users.find(u => u.email === email && u.password === password);
+    const users = await FiltroStorage.getUsers();
+    const user = users.find((u) => u.email === email && u.password === password);
     if (!user) {
       throw new Error("Credenciales inválidas");
     }
@@ -27,8 +27,8 @@ const FiltroAuth = {
   },
 
   async register(name, email, password, role) {
-    const users = FiltroStorage.getUsers();
-    if (users.find(u => u.email === email)) {
+    const users = await FiltroStorage.getUsers();
+    if (users.find((u) => u.email === email)) {
       throw new Error("Usuario ya existe");
     }
     const newUser = {
@@ -39,7 +39,7 @@ const FiltroAuth = {
       role,
     };
     users.push(newUser);
-    FiltroStorage.saveUsers(users);
+    await FiltroStorage.saveUsers(users);
     this.currentUser = {
       uid: newUser.id,
       name: newUser.name,

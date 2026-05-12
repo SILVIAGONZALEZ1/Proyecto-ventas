@@ -110,9 +110,36 @@ const FiltroStorage = {
   },
 
   async initialize() {
+    await this.seedUsers();
     await this.seedCategories();
     await this.seedProducts();
     await this.seedOrders();
+  },
+
+  async seedUsers() {
+    const existing = await this.getUsers();
+    if (existing.length) {
+      return;
+    }
+    const defaultUsers = [
+      {
+        id: this.generateId(),
+        name: "Admin General",
+        email: "admin@filtros.com",
+        password: "admin123",
+        role: "administrador",
+      },
+      {
+        id: this.generateId(),
+        name: "Vendedor",
+        email: "vendedor@filtros.com",
+        password: "vendedor123",
+        role: "vendedor",
+      },
+    ];
+    await Promise.all(
+      defaultUsers.map((user) => this.saveDocument("users", user.id, user)),
+    );
   },
 
   async seedCategories() {
@@ -264,59 +291,6 @@ const FiltroStorage = {
       localStorage.removeItem("filtroApp_session");
     }
   },
-
-  // Métodos para usuarios locales (compatibilidad con auth.js)
-  async getUsers() {
-    return await this.getCollection("users", "name");
-  },
-
-  getLocalUsers() {
-    try {
-      const users = localStorage.getItem("filtroApp_users");
-      return users ? JSON.parse(users) : [];
-    } catch {
-      return [];
-    }
-  },
-
-  saveLocalUsers(users) {
-    localStorage.setItem("filtroApp_users", JSON.stringify(users));
-  },
 };
-
-// Compatibilidad para métodos sincronos usados en auth.js
-const originalGetUsers = FiltroStorage.getUsers.bind(FiltroStorage);
-FiltroStorage.getUsers = function() {
-  // Retorna usuarios de localStorage para login rápido
-  return this.getLocalUsers();
-};
-
-FiltroStorage.saveUsers = function(users) {
-  this.saveLocalUsers(users);
-};
-
-// Método alternativo para obtener de Firebase
-FiltroStorage.getUsersFromFirebase = originalGetUsers;
-
-// Inicialización de usuarios de prueba si no existen
-const existingUsers = FiltroStorage.getLocalUsers();
-if (!existingUsers || existingUsers.length === 0) {
-  FiltroStorage.saveLocalUsers([
-    {
-      id: FiltroStorage.generateId(),
-      name: "Admin General",
-      email: "admin@filtros.com",
-      password: "admin123",
-      role: "administrador",
-    },
-    {
-      id: FiltroStorage.generateId(),
-      name: "Laura Vendedor",
-      email: "laura@filtros.com",
-      password: "venta123",
-      role: "vendedor",
-    },
-  ]);
-}
 
 export { FiltroStorage };
